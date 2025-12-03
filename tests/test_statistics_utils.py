@@ -55,7 +55,20 @@ class TestStatisticsUtils(unittest.TestCase):
         - Llamar a moving_average con window=2
         - Verificar que el resultado es correcto (ej: [1.5, 2.5, 3.5] para el array dado) (usar numpy.testing.assert_allclose() para comparar arrays de NumPy - esto es mejor que unittest porque maneja la comparación de arrays numéricos con tolerancia para errores de punto flotante)
         - Verificar que el resultado tiene la forma (shape) esperada (usar self.assertEqual para comparar tuplas de .shape - comparación simple, unittest es suficiente)
+        
+        Este test revisa que moving_average calcule bien la media movil en un caso sencillo
         """
+        utils = StatisticsUtils()
+        arr = [1.0, 2.0, 3.0, 4.0]
+
+        result = utils.moving_average(arr, window=2)
+
+        expected = np.array([1.5, 2.5, 3.5])
+        npt.assert_allclose(result, expected, rtol=1e-7, atol=1e-7)
+        self.assertEqual(result.shape, expected.shape)
+
+
+
 
     def test_moving_average_raises_for_invalid_window(self):
         """Test que verifica que el método moving_average lanza un ValueError cuando
@@ -65,7 +78,18 @@ class TestStatisticsUtils(unittest.TestCase):
         - Crear una lista de números (ej: [1, 2, 3])
         - Llamar a moving_average con window=0 (valor no positivo) y verificar que se lanza un ValueError (usar self.assertRaises)
         - Llamar a moving_average con window mayor que la longitud del array y verificar que se lanza un ValueError (usar self.assertRaises)
+        
+        Este test revisa que falle si el tamaño de venta es invalido
         """
+
+        utils = StatisticsUtils()
+        arr = [1, 2, 3]
+
+        with self.assertRaises(ValueError):
+            utils.moving_average(arr, window=0)
+
+        with self.assertRaises(ValueError):
+            utils.moving_average(arr, window=-1)
 
     def test_moving_average_only_accepts_1d_sequences(self):
         """Test que verifica que el método moving_average lanza un ValueError cuando
@@ -74,7 +98,15 @@ class TestStatisticsUtils(unittest.TestCase):
         Escenario esperado:
         - Crear una secuencia bidimensional (ej: [[1, 2], [3, 4]])
         - Llamar a moving_average con esa secuencia y verificar que se lanza un ValueError indicando que solo se aceptan secuencias 1D (usar self.assertRaises)
-        """
+       
+        Este test revisa que falle si la secuencia no es 1D
+          """
+        utils = StatisticsUtils()
+
+        bad_input = [[1, 2], [3, 4]]
+
+        with self.assertRaises(ValueError):
+            utils.moving_average(bad_input, window=2)
 
     def test_zscore_has_mean_zero_and_unit_std(self):
         """Test que verifica que el método zscore calcula correctamente los z-scores
@@ -86,7 +118,18 @@ class TestStatisticsUtils(unittest.TestCase):
         - Llamar a zscore para obtener los z-scores (resultado es un array de NumPy)
         - Verificar que la media del resultado es aproximadamente 0 (usar self.assertAlmostEqual para un solo valor numérico - unittest es suficiente)
         - Verificar que la desviación estándar del resultado es aproximadamente 1 (usar self.assertAlmostEqual para un solo valor numérico - unittest es suficiente)
+        
+        Este test revisa que zscore deje media cero y desviacion uno
         """
+        utils = StatisticsUtils()
+        arr = np.array([10.0, 12.0, 14.0, 16.0])
+
+        result = utils.zscore(arr)
+
+        self.assertAlmostEqual(result.mean(), 0.0, places=6)
+        self.assertAlmostEqual(result.std(ddof=0), 1.0, places=6)
+
+
 
     def test_zscore_raises_for_zero_std(self):
         """Test que verifica que el método zscore lanza un ValueError cuando
@@ -96,7 +139,15 @@ class TestStatisticsUtils(unittest.TestCase):
         Escenario esperado:
         - Crear una lista con todos los valores iguales (ej: [5, 5, 5])
         - Llamar a zscore con esa secuencia y verificar que se lanza un ValueError indicando que la desviación estándar es cero (usar self.assertRaises)
+        
+        Este test revisa que zscore fall si todos los valores son iguales
         """
+
+        utils = StatisticsUtils()
+        arr = np.array([5.0, 5.0, 5.0, 5.0])
+
+        with self.assertRaises(ValueError):
+            utils.zscore(arr)
 
     def test_min_max_scale_maps_to_zero_one_range(self):
         """Test que verifica que el método min_max_scale escala correctamente una secuencia
@@ -108,7 +159,16 @@ class TestStatisticsUtils(unittest.TestCase):
         - Verificar que el valor mínimo del resultado es 0.0 (usar self.assertAlmostEqual para un solo valor numérico - unittest es suficiente)
         - Verificar que el valor máximo del resultado es 1.0 (usar self.assertAlmostEqual para un solo valor numérico - unittest es suficiente)
         - Verificar que los valores transformados son correctos (ej: [0.0, 0.5, 1.0] para [2, 4, 6]) (usar numpy.testing.assert_allclose() para comparar el array completo - esto es necesario para comparar arrays de NumPy con tolerancia para errores de punto flotante)
+        
+        Este test revisa que min_max_scale mapee los valores entre cero y uno
         """
+        utils = StatisticsUtils()
+        arr = np.array([2.0, 4.0, 6.0, 8.0])
+
+        result = utils.min_max_scale(arr)
+
+        expected = np.array([0.0, 0.3333333, 0.6666667, 1.0])
+        npt.assert_allclose(result, expected, rtol=1e-6, atol=1e-6)
 
     def test_min_max_scale_raises_for_constant_values(self):
         """Test que verifica que el método min_max_scale lanza un ValueError cuando
@@ -117,7 +177,14 @@ class TestStatisticsUtils(unittest.TestCase):
         Escenario esperado:
         - Crear una lista con todos los valores iguales (ej: [3, 3, 3])
         - Llamar a min_max_scale con esa secuencia y verificar que se lanza un ValueError indicando que todos los valores son iguales (usar self.assertRaises)
+        
+        Este test revisa que falle si todos los valores son iguales 
         """
+        utils = StatisticsUtils()
+        arr = np.array([5.0, 5.0, 5.0])
+
+        with self.assertRaises(ValueError):
+            utils.min_max_scale(arr)
 
 
 if __name__ == "__main__":
